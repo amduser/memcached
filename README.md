@@ -122,6 +122,15 @@ Memcached.config.poolSize = 25;
 memcached.touch('key', 10, function (err) { /* stuff */ });
 ```
 
+**memcached.config** Get nodes.
+
+* `type`: **String** In older versions < 1.4.14, use 'AmazonElastiCache:cluster', versions >= 1.4.14, use 'cluster'
+* `callback`: **Function**
+
+```js
+memcached.config('cluster', function (err) { /* stuff */ });
+```
+
 **memcached.get** Get the value for the given key.
 
 * `key`: **String**, the key
