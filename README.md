@@ -32,6 +32,7 @@ because it demands the binary protocol.
 ## Installation
 
 ```
+(this beta version is not in npm yet)
 npm install memcached
 ```
 
