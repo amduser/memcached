@@ -43,7 +43,7 @@ locations` and `options`. Syntax:
 
 ``` js
 var Memcached = require('memcached');
-var memcached = new Memcached(Server locations, options);
+var memcached = new Memcached(Server locations, config, options);
 ```
 
 ### Server locations
@@ -68,14 +68,19 @@ can work with it. You can either use:
 To implement one of the above formats, your constructor would look like this:
 
 ```js
-var memcached = new Memcached({ '192.168.0.102:11211': 1, '192.168.0.103:11211': 2, '192.168.0.104:11211': 1 });
-var memcached = new Memcached([ '192.168.0.102:11211', '192.168.0.103:11211', '192.168.0.104:11211' ]);
-var memcached = new Memcached('192.168.0.102:11211');
+var memcached = new Memcached({ '192.168.0.102:11211': 1, '192.168.0.103:11211': 2, '192.168.0.104:11211': 1 }, {update_time: 1000*2, autodiscovery: true});
+var memcached = new Memcached([ '192.168.0.102:11211', '192.168.0.103:11211', '192.168.0.104:11211' ], {update_time: 1000*2, autodiscovery: true});
+var memcached = new Memcached('192.168.0.102:11211', {update_time: 1000*2, autodiscovery: true});
 ```
+
+### Config
+(Optional) Autodiscovery client configuration. Properties:
+* `autodiscovery`: *false* by default.
+* `update_time`: *60000* by default (60 seconds). Time in milliseconds that indicates each time that the client must check clusters in autodiscovery mode.
 
 ### Options
 
-Memcached accepts two option schemes. The first one inherits of all Memcached server instances
+(Optional) Memcached accepts two option schemes. The first one inherits of all Memcached server instances
 while the second one is client specific and overwrites the globals. To define these options,
 Memcached server uses the same properties:
 
@@ -98,7 +103,7 @@ Memcached server uses the same properties:
 Example usage:
 
 ```js
-var memcached = new Memcached('localhost:11211', {retries:10,retry:10000,remove:true,failOverServers:['192.168.0.103:11211']});
+var memcached = new Memcached('localhost:11211', {update_time: 1000*2, autodiscovery: true}, {retries:10,retry:10000,remove:true,failOverServers:['192.168.0.103:11211']});
 ```
 
 If you wish to configure the options globally:
