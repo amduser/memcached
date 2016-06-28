@@ -22,7 +22,11 @@ that you update so all your Memcached clusters will use the same failure
 configuration for example, but it's also possible to overwrite these changes per
 `memcached` instance.
 
-Features:
+Forked from the 3rd-Eden memcached project:
+
+https://github.com/3rd-Eden/memcached
+
+NEW FEATURES:
 * Automatic cluster nodes autodiscovery and update through the "config cluster" option
 
 ### protocol
