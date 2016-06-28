@@ -44,8 +44,8 @@ npm install elasticache-client
 
 ## Setting up the client
 
-The constructor of the `memcached` client take 2 different arguments `server
-locations` and `options`. Syntax:
+The constructor of the `memcached` client take 3 different arguments `server
+locations`, `config` and `options`. Syntax:
 
 ``` js
 var Memcached = require('elasticache-client');
