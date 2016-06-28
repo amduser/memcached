@@ -1,4 +1,4 @@
-# Memcached [![Build Status](https://secure.travis-ci.org/3rd-Eden/memcached.svg?branch=master)](http://travis-ci.org/3rd-Eden/memcached)
+# Elasticache client - Memcached
 
 `memcached` is a fully featured Memcached client for Node.js. `memcached` is
 built with scaling, high availability and exceptional performance in mind. We
@@ -22,6 +22,9 @@ that you update so all your Memcached clusters will use the same failure
 configuration for example, but it's also possible to overwrite these changes per
 `memcached` instance.
 
+Features:
+* Automatic cluster nodes autodiscovery and update through the "config cluster" option
+
 ### protocol
 
 As in other databases and message queues, this module uses the ASCII protocol to communicate with
@@ -32,8 +35,7 @@ because it demands the binary protocol.
 ## Installation
 
 ```
-(this beta version is not in npm yet)
-npm install memcached
+npm install elasticache-client
 ```
 
 ## Setting up the client
@@ -42,7 +44,7 @@ The constructor of the `memcached` client take 2 different arguments `server
 locations` and `options`. Syntax:
 
 ``` js
-var Memcached = require('memcached');
+var Memcached = require('elasticache-client');
 var memcached = new Memcached(Server locations, config, options);
 ```
 
@@ -473,10 +475,13 @@ For compatibility with other [libmemcached](http://libmemcached.org/Clients.html
 Due to client dependent type flags it is unlikely that any types other than `string` will work.
 
 # Contributors
+* `Natalia Angulo <https://github.com/AnguloHerrera>`_
+* `Guillermo Menéndez <https://github.com/gmcorral>`_
+* `David Fierro <https://github.com/davidfierro>`_
 
-This project wouldn't be possible without the hard work of our amazing
+(Memcached client: This project wouldn't be possible without the hard work of our amazing
 contributors. See the contributors tab in Github for an up to date list of
-[contributors](https://github.com/3rd-Eden/memcached/graphs/contributors).
+[contributors] (https://github.com/3rd-Eden/memcached/graphs/contributors).)
 
 Thanks for all your hard work on this project!
 
