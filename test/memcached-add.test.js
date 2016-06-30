@@ -15,6 +15,7 @@ global.testnumbers = global.testnumbers || +(Math.random(10) * 1000000).toFixed(
  * memcached commands
  */
 describe('Memcached ADD', function () {
+    this.timeout(10000);
   /**
    * Make sure that adding a key which already exists returns an error.
    */
@@ -23,10 +24,10 @@ describe('Memcached ADD', function () {
         , message = common.alphabet(256)
         , testnr = ++global.testnumbers
         , callbacks = 0;
-
+        
       memcached.set('test:' + testnr, message, 1000, function (error, ok) {
         ++callbacks;
-
+        console.log('err' + error)
         assert.ok(!error);
         ok.should.be.true;
 
