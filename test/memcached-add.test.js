@@ -29,7 +29,6 @@ describe('Memcached ADD', function () {
         
       memcached.set('test:' + testnr, message, 1000, function (error, ok) {
         ++callbacks;
-        console.log('err' + error)
         assert.ok(!error);
         ok.should.be.true;
 

@@ -28,11 +28,9 @@ describe('Memcached CONFIG', function () {
 
       memcached.config('cluster', function (error, ok) {
           
-        console.log(ok);
         ++callbacks;
         assert.ok(!error);
         ok.should.be.true;
-        console.log('its true')
 
         memcached.end(); // close connections
         //assert.equal(callbacks, 1);
