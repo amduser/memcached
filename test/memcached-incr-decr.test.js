@@ -19,7 +19,7 @@ describe("Memcached INCR DECR", function() {
    * Simple increments.. Just because.. we can :D
    */
   it("simple incr", function(done) {
-     var memcached = new Memcached(common.servers.single)
+     var memcached = new Memcached(common.servers.single, {autodiscovery:false, update_time: 1000}, {timeout:10000}, new Mock(common.servers.single))
         , testnr = ++global.testnumbers
         , callbacks = 0;
 
@@ -82,7 +82,7 @@ describe("Memcached INCR DECR", function() {
    * have intergers.. So lets test that.
    */
   it("simple increment on a large number", function(done) {
-    var memcached = new Memcached(common.servers.single)
+    var memcached = new Memcached(common.servers.single, {autodiscovery:false, update_time: 1000}, {timeout:10000}, new Mock(common.servers.single))
         , message = common.numbers(10)
         , testnr = ++global.testnumbers
         , callbacks = 0;
@@ -110,7 +110,7 @@ describe("Memcached INCR DECR", function() {
    * decrementing on a unkonwn key should fail.
    */
   it("decrement on a unknown key", function(done) {
-    var memcached = new Memcached(common.servers.single)
+    var memcached = new Memcached(common.servers.single, {autodiscovery:false, update_time: 1000}, {timeout:10000}, new Mock(common.servers.single))
         , testnr = ++global.testnumbers
         , callbacks = 0;
 
@@ -131,7 +131,7 @@ describe("Memcached INCR DECR", function() {
    * We can only increment on a integer, not on a string.
    */
   it("incrementing on a non string value throws a client_error", function(done) {
-    var memcached = new Memcached(common.servers.single)
+    var memcached = new Memcached(common.servers.single, {autodiscovery:false, update_time: 1000}, {timeout:10000}, new Mock(common.servers.single))
         , testnr = ++global.testnumbers
         , callbacks = 0;
 
