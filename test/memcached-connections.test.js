@@ -10,6 +10,8 @@ var assert = require('assert')
   , fs = require('fs')
   , common = require('./common')
   , Memcached = require('../');
+  
+var Mock = require('./mock.js'); 
 
 global.testnumbers = global.testnumbers || +(Math.random(10) * 1000000).toFixed();
 
@@ -18,7 +20,7 @@ global.testnumbers = global.testnumbers || +(Math.random(10) * 1000000).toFixed(
  */
 describe('Memcached connections', function () {
   it('should call the callback only once if theres an error', function (done) {
-    var memcached = new Memcached('127.0.1:1234', { retries: 3 })
+    var memcached = new Memcached('127.0.1:1234', {autodiscovery:false, update_time: 1000}, {timeout:10000, retries: 3 }, new Mock(common.servers.single))
       , calls = 0;
 
     this.timeout(60000);
@@ -34,12 +36,12 @@ describe('Memcached connections', function () {
     });
   });
   it('should remove a failed server', function(done) {
-    var memcached = new Memcached('127.0.1:1234', {
+    var memcached = new Memcached('127.0.1:1234', {autodiscovery:false, update_time: 1000}, {
       timeout: 1000,
       retries: 0,
       failures: 0,
       retry: 100,
-      remove: true });
+      remove: true }, new Mock(common.servers.single));
 
     this.timeout(60000);
 
@@ -55,14 +57,14 @@ describe('Memcached connections', function () {
     });
   });
   it('should rebalance to remaining healthy server', function(done) {
-    var memcached = new Memcached(['127.0.1:1234', common.servers.single], {
+    var memcached = new Memcached(['127.0.1:1234', common.servers.single], {autodiscovery:false, update_time: 1000}, {
       timeout: 1000,
       retries: 0,
       failures: 0,
       retry: 100,
       remove: true,
-      redundancy: true });
-
+      redundancy: true }, new Mock(common.servers.single));
+      
     this.timeout(60000);
 
     // 'a' goes to fake server. first request will cause server to be removed
@@ -77,10 +79,12 @@ describe('Memcached connections', function () {
   });
   it('should properly schedule failed server retries', function(done) {
     var server = '127.0.0.1:1234';
-    var memcached = new Memcached(server, {
+    var memcached = new Memcached(server, {autodiscovery:false, update_time: 1000}, {
+      timeout: 1000,
       retries: 0,
-      failures: 5,
-      retry: 100 });
+      failures: 0,
+      retry: 100,
+      remove: true }, new Mock(common.servers.single));
 
     // First request will schedule a retry attempt, and lock scheduling
     memcached.get('idontcare', function (err) {
@@ -112,13 +116,14 @@ describe('Memcached connections', function () {
   });
   it('should properly schedule server reconnection attempts', function(done) {
     var server = '127.0.0.1:1234'
-    , memcached = new Memcached(server, {
+    , memcached = new Memcached(server, 
+    {autodiscovery:false, update_time: 1000}, {
       retries: 3,
       minTimeout: 0,
       maxTimeout: 100,
       failures: 0,
-      reconnect: 100 })
-    , reconnectAttempts = 0;
+      reconnect: 100 }, new Mock(common.servers.single)),
+      reconnectAttempts = 0;
 
     memcached.on('reconnecting', function() {
       reconnectAttempts++;
@@ -141,13 +146,14 @@ describe('Memcached connections', function () {
   });
   it('should reset failures after reconnecting to failed server', function(done) {
     var server = '127.0.0.1:1234'
-    , memcached = new Memcached(server, {
+    , memcached = new Memcached(server, 
+     {autodiscovery:false, update_time: 1000}, {
       retries: 0,
       minTimeout: 0,
       maxTimeout: 100,
       failures: 1,
       retry: 1,
-      reconnect: 100 })
+      reconnect: 100 }, new Mock(common.servers.single))
 
     this.timeout(60000);
 
@@ -181,7 +187,8 @@ describe('Memcached connections', function () {
   it('should default to port 11211', function(done) {
     // Use an IP without port
     var server = '127.0.0.1'
-    , memcached = new Memcached(server);
+    , memcached = new Memcached(server, {autodiscovery:false, update_time: 1000}, {timeout:5000}, 
+    new Mock(common.servers.single));
 
     memcached.get('idontcare', function(err) {
       assert.ifError(err);
@@ -193,7 +200,8 @@ describe('Memcached connections', function () {
   it('should not create multiple connections with no port', function(done) {
     // Use an IP without port
     var server = '127.0.0.1'
-    , memcached = new Memcached(server)
+    , memcached = new Memcached(server, {autodiscovery:false, update_time: 1000}, {timeout:5000}, 
+    new Mock(common.servers.single))
     , conn;
 
     memcached.get('idontcare', function(err) {
@@ -223,11 +231,13 @@ describe('Memcached connections', function () {
     });
   });
   it('should remove connection when idle', function(done) {
-    var memcached = new Memcached(common.servers.single, {
+    var memcached = new Memcached(common.servers.single, 
+    {autodiscovery:false, update_time: 1000}, {
       retries: 0,
       timeout: 100,
       idle: 100,
-      failures: 0 });
+      failures: 0 }, 
+    new Mock(common.servers.single));
 
     memcached.get('idontcare', function(err) {
       assert.deepEqual(memcached.connections[common.servers.single].pool.length, 1);
@@ -239,12 +249,13 @@ describe('Memcached connections', function () {
     });
   });
   it('should remove server if error occurs after connection established', function(done) {
-    var memcached = new Memcached(common.servers.single, {
+    var memcached = new Memcached(common.servers.single, {autodiscovery:false, update_time: 1000}, {
       poolSize: 1,
       retries: 0,
       timeout: 1000,
       idle: 5000,
-      failures: 0 });
+      failures: 0 }, 
+    new Mock(common.servers.single));
 
     // Should work fine
     memcached.get('idontcare', function(err) {
@@ -260,13 +271,15 @@ describe('Memcached connections', function () {
   });
   it('should reset failures if all failures do not occur within failuresTimeout ms', function(done) {
     var server = '10.255.255.255:1234'
-    , memcached = new Memcached(server, {
+    , memcached = new Memcached(server, 
+    {autodiscovery:false, update_time: 1000}, {
       retries: 0,
       timeout: 10,
       idle: 1000,
       retry: 10,
       failures: 2,
-      failuresTimeout: 100 });
+      failuresTimeout: 100 }, 
+    new Mock(common.servers.single));
 
     memcached.get('idontcare', function(err) {
       assert.throws(function() { throw err }, /Timed out while trying to establish connection/);

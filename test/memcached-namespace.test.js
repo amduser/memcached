@@ -7,6 +7,8 @@ var assert = require('assert')
   , fs = require('fs')
   , common = require('./common')
   , Memcached = require('../');
+  
+var Mock = require('./mock.js'); 
 
 global.testnumbers = global.testnumbers || +(Math.random(10) * 1000000).toFixed();
 
@@ -21,7 +23,7 @@ describe('Memcached tests with Namespaces', function () {
    * that we are not retrieving old data.
    */
   it("set with one namespace and verify it can't be read in another", function (done) {
-    var memcached = new Memcached(common.servers.single)
+    var memcached = new Memcached(common.servers.single, {autodiscovery:false, update_time: 1000}, {timeout:10000}, new Mock(common.servers.single))
         , message = common.alphabet(256)
         , testnr = ++global.testnumbers
         , callbacks = 0;
@@ -33,9 +35,7 @@ describe('Memcached tests with Namespaces', function () {
       assert.ok(!error);
       ok.should.be.true;
 
-      var memcachedOther = new Memcached(common.servers.single, {
-        namespace: 'mySegmentedMemcached:'
-      });
+      var memcachedOther = new Memcached(common.servers.single, {autodiscovery:false, update_time: 1000}, {namespace: 'mySegmentedMemcached:', timeout:10000}, new Mock(common.servers.single));
 
       // Try to load that memcache key with the namespace prepended - this should fail
       memcachedOther.get('test:' + testnr, function (error, answer) {
@@ -71,9 +71,7 @@ describe('Memcached tests with Namespaces', function () {
   });
 
   it('set, set, and multiget with custom namespace', function (done) {
-    var memcached = new Memcached(common.servers.single, {
-          namespace: 'mySegmentedMemcached:'
-        })
+    var memcached = new Memcached(common.servers.single,  {autodiscovery:false, update_time: 1000}, {namespace: 'mySegmentedMemcached:', timeout:10000}, new Mock(common.servers.single))
       , callbacks = 0;
 
     // Load two namespaced variables into memcached
@@ -112,9 +110,7 @@ describe('Memcached tests with Namespaces', function () {
    * test2     => :11213
    */
   it('multi get from multi server with custom namespace (inc. cache miss)', function (done) {
-    var memcached = new Memcached(common.servers.multi, {
-          namespace: 'mySegmentedMemcached:'
-        })
+    var memcached = new Memcached(common.servers.multi, {autodiscovery:false, update_time: 1000}, {namespace: 'mySegmentedMemcached:', timeout:10000}, new Mock(common.servers.single))
       , callbacks = 0;
 
     // Load two namespaced variables into memcached
@@ -149,9 +145,7 @@ describe('Memcached tests with Namespaces', function () {
   });
 
   it('should allow namespacing on delete', function(done) {
-    var memcached = new Memcached(common.servers.single, {
-        namespace:'someNamespace:'
-    }), callbacks = 0;
+    var memcached = new Memcached(common.servers.single, {autodiscovery:false, update_time: 1000}, {namespace: 'mySegmentedMemcached:', timeout:10000}, new Mock(common.servers.single)), callbacks = 0;
 
     // put a value
     memcached.set('test1', 'test1answer', 1000, function(error, ok) {
@@ -185,9 +179,7 @@ describe('Memcached tests with Namespaces', function () {
   });
 
   it('should allow increment and decrement on namespaced values', function(done) {
-    var memcached = new Memcached(common.servers.single, {
-        namespace:'someNamespace:'
-    }), callbacks = 0;
+    var memcached = new Memcached(common.servers.single, {autodiscovery:false, update_time: 1000}, {namespace: 'mySegmentedMemcached:', timeout:10000}, new Mock(common.servers.single)), callbacks = 0;
 
     // put a value
     memcached.set('test1', 1, 1000, function(error, ok) {

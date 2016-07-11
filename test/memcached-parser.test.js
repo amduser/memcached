@@ -7,6 +7,8 @@ var assert = require('assert')
   , fs = require('fs')
   , common = require('./common')
   , Memcached = require('../');
+  
+var Mock = require('./mock.js');   
 
 global.testnumbers = global.testnumbers || +(Math.random(10) * 1000000).toFixed();
 
@@ -16,7 +18,7 @@ global.testnumbers = global.testnumbers || +(Math.random(10) * 1000000).toFixed(
  */
 describe('Memcached parser', function() {
   it('chunked response', function (done) {
-    var memcached = new Memcached(common.servers.single)
+    var memcached = new Memcached(common.servers.single, {autodiscovery:false, update_time: 1000}, {timeout:10000}, new Mock(common.servers.single))
       , message = common.alphabet(256)
       , chunks = []
       , chunk = 'VALUE tests::#{key} 2 {length}'

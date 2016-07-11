@@ -5,6 +5,8 @@
 var assert = require('assert')
   , common = require('./common')
   , Memcached = require('../');
+  
+var Mock = require('./mock.js');  
 
 global.testnumbers = global.testnumbers || +(Math.random(10) * 1000000).toFixed();
 
@@ -45,7 +47,7 @@ describe("Memcached INCR DECR", function() {
    * move on.
    */
   it("simple decr", function(done) {
-    var memcached = new Memcached(common.servers.single)
+    var memcached = new Memcached(common.servers.single, {autodiscovery:false, update_time: 1000}, {timeout:10000}, new Mock(common.servers.single))
         , testnr = ++global.testnumbers
         , callbacks = 0;
 

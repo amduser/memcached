@@ -7,6 +7,8 @@ var assert = require('assert')
   , fs = require('fs')
   , common = require('./common')
   , Memcached = require('../');
+  
+var Mock = require('./mock.js');
 
 global.testnumbers = global.testnumbers || +(Math.random(10) * 1000000).toFixed();
 
@@ -20,7 +22,7 @@ describe('Memcached ADD', function () {
    * Make sure that adding a key which already exists returns an error.
    */
   it('fail to add an already existing key', function (done) {
-    var memcached = new Memcached(common.servers.single)
+    var memcached = new Memcached(common.servers.single, {autodiscovery:false, update_time: 1000}, {timeout:10000}, new Mock(common.servers.single))
         , message = common.alphabet(256)
         , testnr = ++global.testnumbers
         , callbacks = 0;
