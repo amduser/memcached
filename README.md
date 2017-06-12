@@ -1,4 +1,4 @@
-# Elasticache client - Memcached [![Build Status](https://travis-ci.org/touchvie/memcached.svg?branch=master)](https://travis-ci.org/touchvie/memcached)
+# Elasticache client - Memcached [![Build Status](https://travis-ci.org/dive-tv/memcached.svg?branch=master)](https://travis-ci.org/dive-tv/memcached)
 
 `memcached` is a fully featured Memcached client for Node.js. `memcached` is
 built with scaling, high availability and exceptional performance in mind. We

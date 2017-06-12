@@ -1,7 +1,7 @@
 {
   "name": "elasticache-client",
   "version": "0.0.6",
-  "author": "Natalia Angulo <nataliaangulo93@gmail.com>  @ Touchvie; Guillermo Menéndez <guillermo.menendez@touchvie.com>  @ Touchvie; David Fierro <david.fierro@touchvie.com>  @ Touchvie; Arnout Kazemier",
+  "author": "Arnout Kazemier; Natalia Angulo <nataliaangulo93@gmail.com>; Guillermo Menéndez <guillermo.menendez@dive.tv>",
   "description": "A fully featured Memcached API client with consistent key hashing and node autodiscovery, supporting both single and clustered Memcached servers through consistent hashing and failover/failure. Memcached is rewrite of nMemcached, which will be deprecated in the near future.",
   "main": "index",
   "keywords": [
@@ -23,7 +23,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/touchvie/memcached.git"
+    "url": "https://github.com/dive-tv/memcached.git"
   },
   "dependencies": {
     "hashring": "3.2.x",
