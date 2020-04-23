@@ -1,1 +1,1 @@
-module.exports = require('./lib/memcached.js');
+module.exports = require('./lib/autodiscovery.js');

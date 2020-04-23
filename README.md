@@ -1,66 +1,4 @@
-
-
-## Notice!
-
-If you came here because you've noticed that 2.2.2 of the original implementation
-of the [3rd-Eden/memcached](https://github.com/3rd-Eden/memcached/) is having issues
-with reconnecting after connection to Memcached server has dropped and you think
-it can have something to do with any of those errors:
-[3rd-Eden/memcached#281](https://github.com/3rd-Eden/memcached/issues/281),
-[3rd-Eden/memcached#195](https://github.com/3rd-Eden/memcached/issues/195),
-[3rd-Eden/memcached#185](https://github.com/3rd-Eden/memcached/issues/185)
-and... you've lost all your hope in finding the right solution... this could be it.
-Though, it's not a promise!
-
-### Context
-
-We've been seeing issues in out AWS Gateway + AWS Lambda + Apollo Server + NodeJS +
-AWS Memcached implementation that were hard to pindown and the only clear sign
-that something is off was Lambda timeing out without any clear reason.
-
-Enabling `debug` mode in Memcached client unrevealed such Error:
-```
-2020-02-27T21:24:12.533Z	437a4074-e1c3-408f-859d-7717273b5e2f	INFO	Connection error Error: read ECONNRESET
-    at TCP.onStreamRead [as _originalOnread] (internal/stream_base_commons.js:200:27)
-    at TCP.<anonymous> (/var/task/node_modules/async-listener/glue.js:188:31) {
-  errno: 'ECONNRESET',
-  code: 'ECONNRESET',
-  syscall: 'read'
-}
-```
-and here we are!
-
-### So what's new?
-
-The only part where this repo is differend from the original
-[3rd-Eden/memcached](https://github.com/3rd-Eden/memcached/) is one Pull Request
-https://github.com/3rd-Eden/memcached/pull/199 which we decided to merge into master and
-tag as 2.2.3.
-
-### Does it work?
-
-In our case fix for our problems was pretty straightforward. As we're using Yarn we did dig
-though the docs and we've found
-[this beauty](https://classic.yarnpkg.com/en/docs/package-json#toc-resolutions). We ended up
-with adding those few lines into our _package.json_:
-```
-  "resolutions": {
-    "apollo-server-cache-memcached/memcached": "secretescapes/memcached#2.2.3"
-  },
-```
-and that was enough to tell yarn that for `apollo-server-cache-memcached` we want to take
-the `memcached` dependendy out from this repo.
-
-### What next?
-
-My personal recomendation for you is to fork this project into your own repository and
-keep it there safe. We cannot guarantee that this code is free of any other issues OR will
-not be modified in the future to better suite our own needs OR will not be removed when
-`apollo-server-cache-memcached` will get new Memcached client. Keep in mind that in any
-of those cases your project could stop working, so if this fix will work for you, keep it safe!
-
-
-# Memcached [![Build Status](https://secure.travis-ci.org/3rd-Eden/memcached.svg?branch=master)](http://travis-ci.org/3rd-Eden/memcached)
+# Elasticache client - Memcached [![Build Status](https://travis-ci.org/dive-tv/memcached.svg?branch=master)](https://travis-ci.org/dive-tv/memcached)
 
 `memcached` is a fully featured Memcached client for Node.js. `memcached` is
 built with scaling, high availability and exceptional performance in mind. We
@@ -84,6 +22,13 @@ that you update so all your Memcached clusters will use the same failure
 configuration for example, but it's also possible to overwrite these changes per
 `memcached` instance.
 
+Forked from the 3rd-Eden memcached project:
+
+https://github.com/3rd-Eden/memcached
+
+NEW FEATURES:
+* Automatic cluster nodes autodiscovery and update through the "config cluster" option
+
 ### protocol
 
 As in other databases and message queues, this module uses the ASCII protocol to communicate with
@@ -94,17 +39,17 @@ because it demands the binary protocol.
 ## Installation
 
 ```
-npm install memcached
+npm install elasticache-client
 ```
 
 ## Setting up the client
 
-The constructor of the `memcached` client take 2 different arguments `server
-locations` and `options`. Syntax:
+The constructor of the `memcached` client take 3 different arguments `server
+locations`, `config` and `options`. Syntax:
 
 ``` js
-var Memcached = require('memcached');
-var memcached = new Memcached(Server locations, options);
+var Memcached = require('elasticache-client');
+var memcached = new Memcached(Server locations, config, options);
 ```
 
 ### Server locations
@@ -129,14 +74,19 @@ can work with it. You can either use:
 To implement one of the above formats, your constructor would look like this:
 
 ```js
-var memcached = new Memcached({ '192.168.0.102:11211': 1, '192.168.0.103:11211': 2, '192.168.0.104:11211': 1 });
-var memcached = new Memcached([ '192.168.0.102:11211', '192.168.0.103:11211', '192.168.0.104:11211' ]);
-var memcached = new Memcached('192.168.0.102:11211');
+var memcached = new Memcached({ '192.168.0.102:11211': 1, '192.168.0.103:11211': 2, '192.168.0.104:11211': 1 }, {update_time: 1000*2, autodiscovery: true});
+var memcached = new Memcached([ '192.168.0.102:11211', '192.168.0.103:11211', '192.168.0.104:11211' ], {update_time: 1000*2, autodiscovery: true});
+var memcached = new Memcached('192.168.0.102:11211', {update_time: 1000*2, autodiscovery: true});
 ```
+
+### Config
+(Optional) Autodiscovery client configuration. Properties:
+* `autodiscovery`: *false* by default.
+* `update_time`: *60000* by default (60 seconds). Time in milliseconds that indicates each time that the client must check clusters in autodiscovery mode.
 
 ### Options
 
-Memcached accepts two option schemes. The first one inherits of all Memcached server instances
+(Optional) Memcached accepts two option schemes. The first one inherits of all Memcached server instances
 while the second one is client specific and overwrites the globals. To define these options,
 Memcached server uses the same properties:
 
@@ -160,7 +110,7 @@ Memcached server uses the same properties:
 Example usage:
 
 ```js
-var memcached = new Memcached('localhost:11211', {retries:10,retry:10000,remove:true,failOverServers:['192.168.0.103:11211']});
+var memcached = new Memcached('localhost:11211', {update_time: 1000*2, autodiscovery: true}, {retries:10,retry:10000,remove:true,failOverServers:['192.168.0.103:11211']});
 ```
 
 If you wish to configure the options globally:
@@ -183,6 +133,15 @@ Memcached.config.poolSize = 25;
 
 ```js
 memcached.touch('key', 10, function (err) { /* stuff */ });
+```
+
+**memcached.config** Get nodes.
+
+* `type`: **String** In older versions < 1.4.14, use 'AmazonElastiCache:cluster', versions >= 1.4.14, use 'cluster'
+* `callback`: **Function**
+
+```js
+memcached.config('cluster', function (err) { /* stuff */ });
 ```
 
 **memcached.get** Get the value for the given key.
@@ -527,10 +486,13 @@ You may encounter several problems when run the test. Be sure you already made t
 3. Run `export MEMCACHED__HOST=localhost` in your terminal. (This will make sure that the test case use `localhost` as your memcached server IP address other than it's default IP)
 
 # Contributors
+* `Natalia Angulo <https://github.com/AnguloHerrera>`_
+* `Guillermo Menéndez <https://github.com/gmcorral>`_
+* `David Fierro <https://github.com/davidfierro>`_
 
-This project wouldn't be possible without the hard work of our amazing
+(Memcached client: This project wouldn't be possible without the hard work of our amazing
 contributors. See the contributors tab in Github for an up to date list of
-[contributors](https://github.com/3rd-Eden/memcached/graphs/contributors).
+[contributors] (https://github.com/3rd-Eden/memcached/graphs/contributors).)
 
 Thanks for all your hard work on this project!
 

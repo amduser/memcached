@@ -1,8 +1,8 @@
 {
-  "name": "memcached",
-  "version": "2.3.0",
-  "author": "Arnout Kazemier",
-  "description": "A fully featured Memcached API client, supporting both single and clustered Memcached servers through consistent hashing and failover/failure. Memcached is rewrite of nMemcached, which will be deprecated in the near future.",
+  "name": "elasticache-client",
+  "version": "0.0.7",
+  "author": "Arnout Kazemier; Natalia Angulo <nataliaangulo93@gmail.com>; Guillermo Menéndez <guillermo.menendez@dive.tv>",
+  "description": "A fully featured Memcached API client with consistent key hashing and node autodiscovery, supporting both single and clustered Memcached servers through consistent hashing and failover/failure. Memcached is rewrite of nMemcached, which will be deprecated in the near future.",
   "main": "index",
   "keywords": [
     "InnoDB memcached API",
@@ -15,16 +15,21 @@
     "memcache",
     "memcached",
     "nMemcached",
-    "nosql"
+    "nosql",
+    "autodiscovery",
+    "aws",
+    "elasticache"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "http://github.com/3rd-Eden/node-memcached.git"
+    "url": "https://github.com/dive-tv/memcached.git"
   },
   "dependencies": {
     "hashring": "3.2.x",
-    "jackpot": ">=0.0.6"
+    "jackpot": ">=0.0.6",
+    "deasync": "^0.1.19",
+    "memcached": "^2.2.1"
   },
   "devDependencies": {
     "mocha": "*",

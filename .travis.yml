@@ -8,7 +8,7 @@ node_js:
 
 # Create a Travis memcached enabled environment for the test suite to run in and
 # ensure that we test against localhost on Travis-CI.
-services: memcache
+services: memcached
 env: MEMCACHED__HOST=localhost
 
 # The `sevices: memcache` will start a memcached service on localhost

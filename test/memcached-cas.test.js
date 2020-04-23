@@ -6,6 +6,8 @@
 var assert = require('assert')
   , common = require('./common')
   , Memcached = require('../');
+  
+var Mock = require('./mock.js');
 
 global.testnumbers = global.testnumbers || +(Math.random(10) * 1000000).toFixed();
 
@@ -20,7 +22,7 @@ describe('Memcached CAS', function () {
    * sure that a `cas` key is given.
    */
   it('set and gets for cas result', function (done) {
-    var memcached = new Memcached(common.servers.single)
+    var memcached = new Memcached(common.servers.single, {autodiscovery:false, update_time: 1000}, {timeout:10000}, new Mock(common.servers.single))
         , message = common.alphabet(256)
         , testnr = ++global.testnumbers
         , callbacks = 0;
@@ -51,7 +53,7 @@ describe('Memcached CAS', function () {
    * Create a successful cas update, so we are sure we send a cas request correctly.
    */
   it('successful cas update', function(done) {
-    var memcached = new Memcached(common.servers.single)
+    var memcached = new Memcached(common.servers.single, {autodiscovery:false, update_time: 1000}, {timeout:10000}, new Mock(common.servers.single))
         , message = common.alphabet(256)
         , testnr = ++global.testnumbers
         , callbacks = 0;
@@ -93,7 +95,7 @@ describe('Memcached CAS', function () {
    * while we where doing nothing.
    */
   it('unsuccessful cas update', function (done) {
-     var memcached = new Memcached(common.servers.single)
+     var memcached = new Memcached(common.servers.single, {autodiscovery:false, update_time: 1000}, {timeout:10000}, new Mock(common.servers.single))
         , message = common.alphabet(256)
         , testnr = ++global.testnumbers
         , callbacks = 0;
