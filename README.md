@@ -1,3 +1,65 @@
+
+
+## Notice!
+
+If you came here because you've noticed that 2.2.2 of the original implementation
+of the [3rd-Eden/memcached](https://github.com/3rd-Eden/memcached/) is having issues
+with reconnecting after connection to Memcached server has dropped and you think
+it can have something to do with any of those errors:
+[3rd-Eden/memcached#281](https://github.com/3rd-Eden/memcached/issues/281),
+[3rd-Eden/memcached#195](https://github.com/3rd-Eden/memcached/issues/195),
+[3rd-Eden/memcached#185](https://github.com/3rd-Eden/memcached/issues/185)
+and... you've lost all your hope in finding the right solution... this could be it.
+Though, it's not a promise!
+
+### Context
+
+We've been seeing issues in out AWS Gateway + AWS Lambda + Apollo Server + NodeJS +
+AWS Memcached implementation that were hard to pindown and the only clear sign
+that something is off was Lambda timeing out without any clear reason.
+
+Enabling `debug` mode in Memcached client unrevealed such Error:
+```
+2020-02-27T21:24:12.533Z	437a4074-e1c3-408f-859d-7717273b5e2f	INFO	Connection error Error: read ECONNRESET
+    at TCP.onStreamRead [as _originalOnread] (internal/stream_base_commons.js:200:27)
+    at TCP.<anonymous> (/var/task/node_modules/async-listener/glue.js:188:31) {
+  errno: 'ECONNRESET',
+  code: 'ECONNRESET',
+  syscall: 'read'
+}
+```
+and here we are!
+
+### So what's new?
+
+The only part where this repo is differend from the original
+[3rd-Eden/memcached](https://github.com/3rd-Eden/memcached/) is one Pull Request
+https://github.com/3rd-Eden/memcached/pull/199 which we decided to merge into master and
+tag as 2.2.3.
+
+### Does it work?
+
+In our case fix for our problems was pretty straightforward. As we're using Yarn we did dig
+though the docs and we've found
+[this beauty](https://classic.yarnpkg.com/en/docs/package-json#toc-resolutions). We ended up
+with adding those few lines into our _package.json_:
+```
+  "resolutions": {
+    "apollo-server-cache-memcached/memcached": "secretescapes/memcached#2.2.3"
+  },
+```
+and that was enough to tell yarn that for `apollo-server-cache-memcached` we want to take
+the `memcached` dependendy out from this repo.
+
+### What next?
+
+My personal recomendation for you is to fork this project into your own repository and
+keep it there safe. We cannot guarantee that this code is free of any other issues OR will
+not be modified in the future to better suite our own needs OR will not be removed when
+`apollo-server-cache-memcached` will get new Memcached client. Keep in mind that in any
+of those cases your project could stop working, so if this fix will work for you, keep it safe!
+
+
 # Memcached [![Build Status](https://secure.travis-ci.org/3rd-Eden/memcached.svg?branch=master)](http://travis-ci.org/3rd-Eden/memcached)
 
 `memcached` is a fully featured Memcached client for Node.js. `memcached` is
